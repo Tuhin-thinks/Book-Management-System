@@ -14,7 +14,7 @@ class HomeWindow(QtWidgets.QMainWindow):
 
         self.thread_pool = []
         self.ui.tableView_books.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        
+        self.ui.tableView_books.installEventFilter(self)
         header = ['Book Name', 'File Path', 'Size (KB)']
         self.ui.pushButton_search.clicked.connect(self.openFile)
     
@@ -57,12 +57,14 @@ class HomeWindow(QtWidgets.QMainWindow):
         self.ui.tableView_books.adjustSize()
         self.update()
     
-    def resizeColumns(self):
-        table_width = self.ui.tableView_books.width()
-        self.ui.tableView_books.setColumnWidth(0, table_width * 45 // 100)
-        self.ui.tableView_books.setColumnWidth(1, table_width * 50 // 100)
-        self.ui.tableView_books.setColumnWidth(2, table_width * 5 // 100)
-        self.horizontal_header.setStretchLastSection(True)
+    def eventFilter(self, source: 'QtCore.QObject', event: 'QtCore.QEvent'):
+        if source == self.ui.tableView_books and event.type() == QtCore.QEvent.Resize:
+            table_width = self.ui.frame.width()
+            self.ui.tableView_books.setColumnWidth(0, (table_width * 25 // 100))
+            self.ui.tableView_books.setColumnWidth(1, (table_width * 50 // 100))
+            self.ui.tableView_books.setColumnWidth(2, (table_width * 27 // 100))
+
+        return super(HomeWindow, self).eventFilter(source, event)
 
 
 if __name__ == '__main__':

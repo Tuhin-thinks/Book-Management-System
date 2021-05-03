@@ -21,8 +21,24 @@ class FindBooks(QtCore.QObject):
                         self.status.emit(f"ignored {file}")
                         continue
                     file_path = os.path.join(root, file)
+
+                    size_ = os.stat(file_path).st_size/1000
+                    unit = "KB"
+                    if size_ > 1024:
+                        size_ /= 1024
+                        unit = 'MB'
+
+                    if size_ > 1024:
+                        size_ /= 1024
+                        unit = 'GB'
+
+                    if size_ > 1024:
+                        size_ /= 1024
+                        unit = 'TB'
+
                     self.status.emit(file)
-                    files.append([file, file_path, f"{(os.stat(file_path).st_size/1000):.04f} KB"])
+                    size_str_mod = f"{size_ :.02f} {unit}"
+                    files.append([file, file_path, size_str_mod])
             self.status.emit(f"Total {len(files)} books found.")
         else:
             self.status.emit("Invalid path entered.")

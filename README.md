@@ -11,9 +11,8 @@ python3 launcher.py
 ```
 
 For people running this on windows, you can get the Ubuntu feel on the UI, you can run this with:
-```python
-python launcher.py --posix
-```
+
+`python` [launcher.py](launcher.py) `--posix`
 
 ## What is the purpose of the project?
 
@@ -26,4 +25,5 @@ But later they can't remember where a certail category of book can be found.
 So, this software **(in its later stages)** will try to search the book title online from a directory (recursive search) and try to label it.
 **Provided title should be relevant. Everything depends on the title!**
 
-** you can find the GUI design inside the */Lib/UI* folder.
+** you can find the GUI design inside the *[/Lib/UI/Raw](Lib/UI/Raw/)* folder.
+(Lib/UI)

@@ -68,6 +68,7 @@ class HomeWindow(QtWidgets.QMainWindow):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle('Fusion')
     w = HomeWindow()
     w.show()
     sys.exit(app.exec())

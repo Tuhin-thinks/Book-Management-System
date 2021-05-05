@@ -1,14 +1,13 @@
 import os.path
-import sys
 
-from global_imports import *
 import Lib
+from global_imports import *
 
 
 class HomeWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(HomeWindow, self).__init__()
-        
+
         self.ui = Lib.home.Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -17,7 +16,7 @@ class HomeWindow(QtWidgets.QMainWindow):
         self.ui.tableView_books.installEventFilter(self)
         header = ['Book Name', 'File Path', 'Size (KB)']
         self.ui.pushButton_search.clicked.connect(self.openFile)
-    
+
     def openFile(self):
         searchPath = self.ui.lineEdit_searchhPath.text()
         book_dir = os.path.expanduser("~/Downloads/Books") if not searchPath else searchPath
@@ -26,13 +25,13 @@ class HomeWindow(QtWidgets.QMainWindow):
             Lib.showStatus(self, f"Opening {folderName}")
             self.ui.lineEdit_searchhPath.setText(folderName)
             self.searchBooks(folderName)
-    
-    def searchBooks(self, path:str):
+
+    def searchBooks(self, path: str):
         if not hasattr(self, 'search_thread'):
             self.search_thread = QtCore.QThread()
             self.thread_pool.append(self.search_thread)
         self.search_obj = Lib.ThreadObjects.FindBooks(path)
-        self.search_obj.ignore = [".jpeg", '.png', '.jpg', '.html', '.txt', '.db', '.py', '.js', '.css']
+        self.search_obj.ignore = [".jpeg", '.png', '.jpg', '.html', '.txt', '.db', '.py', '.js', '.css', '.pyc']
         self.search_obj.status.connect(partial(Lib.showStatus, self))
         self.search_obj.close.connect(self.Disconnect_searchThread)
         self.search_obj.books_found.connect(self.setDataToTable)
@@ -44,19 +43,19 @@ class HomeWindow(QtWidgets.QMainWindow):
         while True:
             try:
                 self.search_thread.quit()
-            except:
+            except Exception:
                 pass
             try:
                 self.search_thread.disconnect()
             except TypeError:
                 break
-    
+
     def setDataToTable(self, books: typing.List[typing.List] = ...):
         model = Lib.FileShowModel(books)
         self.ui.tableView_books.setModel(model)
         self.ui.tableView_books.adjustSize()
         self.update()
-    
+
     def eventFilter(self, source: 'QtCore.QObject', event: 'QtCore.QEvent'):
         if source == self.ui.tableView_books and event.type() == QtCore.QEvent.Resize:
             table_width = self.ui.frame.width()

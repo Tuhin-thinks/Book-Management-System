@@ -12,7 +12,7 @@ python3 launcher.py
 
 For people running this on windows, you can get the Ubuntu feel on the UI, you can run this with:
 
-`python` [launcher.py](launcher.py) `--posix`
+`python` [launcher.py](launcher.py) `Fusion`
 
 ## What is the purpose of the project?
 

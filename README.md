@@ -27,3 +27,4 @@ So, this software **(in its later stages)** will try to search the book title on
 
 ** you can find the GUI design inside the *[/Lib/UI/Raw](Lib/UI/Raw/)* folder.
 (Lib/UI)
+** E-book extensions obtained from [https://www.file-extensions.org/filetype/extension/name/e-book-files](https://www.file-extensions.org/filetype/extension/name/e-book-files)

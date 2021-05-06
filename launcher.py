@@ -8,18 +8,54 @@ class HomeWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(HomeWindow, self).__init__()
 
+        self.search_thread = QtCore.QThread()
+        self.search_obj = None
+        self.actionCenterWindow = None
         self.ui = Lib.home.Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.thread_pool = []
+        self.selection = Lib.Classes.Selection()
         self.ui.tableView_books.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.ui.tableView_books.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.ui.tableView_books.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
         self.ui.tableView_books.installEventFilter(self)
-        header = ['Book Name', 'File Path', 'Size (KB)']
+        # header = ['Book Name', 'File Path', 'Size (KB)']
         self.ui.pushButton_search.clicked.connect(self.openFile)
+        self.ui.actionOpen_Action_Center.triggered.connect(self.openActionCenter)
+
+    def get_selected_rows(self):
+        selection_model = self.ui.tableView_books.selectionModel()
+        selected = []
+        if selection_model:
+            row_count = self.ui.tableView_books.model().rowCount()
+            column_count = self.ui.tableView_books.model().columnCount()
+            for row in range(row_count):
+                column_data = []
+                for column_index in range(column_count):
+                    column_ = selection_model.selectedRows(column_index)
+                    column_data.append(column_[0].data(0))
+                    break  # break to only get the book name (first column)
+                selected.append(column_data[0])
+
+        self.selection.add_to_selection(Lib.Classes.Selection(selected))
+
+    def openActionCenter(self):
+        self.get_selected_rows()
+        if not self.selection:
+            return
+        self.actionCenterWindow = Lib.ActionCenter.ActionCenter(self.selection, self.ui.lineEdit_searchhPath.text())
+        self.actionCenterWindow.close_signal.connect(self.close_action_window)
+        self.actionCenterWindow.show()
+        self.hide()
+
+    def close_action_window(self):
+        self.show()
+        self.actionCenterWindow.close()
 
     def openFile(self):
         searchPath = self.ui.lineEdit_searchhPath.text()
-        book_dir = os.path.expanduser("~/Downloads/Books") if not searchPath else searchPath
+        book_dir = os.path.expanduser("~/Downloads/") if not searchPath else searchPath
         folderName = Lib.FileOpener.OpenDir(self, "Select Book Directory", book_dir)
         if folderName:
             Lib.showStatus(self, f"Opening {folderName}")

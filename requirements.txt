@@ -1,4 +1,8 @@
-pyqt5
+pyqt5~=5.15.2
 pandas
 tqdm
-colorama
+colorama~=0.4.4
+
+requests~=2.25.1
+bs4~=0.0.1
+beautifulsoup4~=4.9.3

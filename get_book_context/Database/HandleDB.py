@@ -1,14 +1,13 @@
-import sqlalchemy.exc
-from colorama import Fore, Back, Style
+import traceback
 import datetime
-import logging
 import os
-from dataclasses import dataclass
-from dataclasses import field
-from typing import List, Optional
+import re
+from dataclasses import field, dataclass
+from typing import Optional, List
 
-from sqlalchemy import create_engine, Table, Column, Integer, String, log, UniqueConstraint
-from sqlalchemy.orm import registry, sessionmaker, Session, configure_mappers
+from colorama import Fore, Style, Back
+from sqlalchemy import create_engine, Table, Column, Integer, String, UniqueConstraint, ForeignKey, select
+from sqlalchemy.orm import registry, sessionmaker, Session
 from sqlalchemy_utils import database_exists, create_database
 # from .config import username, password
 from config import username, password
@@ -31,57 +30,160 @@ class Books:
         Column("date_added", String),
         UniqueConstraint("title", "ISBN")
     )
-
+    
     id: int = field(init=False)
     title: str
     ISBN: Optional[str] = field(init=False)
     date_added: Optional[str] = datetime.datetime.today().date().isoformat()  # '2021-05-19'
+    
+    mapper_registry.metadata.create_all(engine)
+
+
+@mapper_registry.mapped
+@dataclass
+class BookIndex:
+    __table__ = Table(
+        "BookIndex",
+        mapper_registry.metadata,
+        Column("book_id", Integer, ForeignKey("Books.id"), primary_key=True, unique=True),
+        Column("keywords", String),
+        UniqueConstraint('book_id')
+    )
+    
+    book_id: int = field(init=False)
+    keywords_list: List  # you can either pass keywords as a list of strings,
+    keywords: Optional[str] = field(default=None)  # or you can send str with right formatting to keywords directly
 
     mapper_registry.metadata.create_all(engine)
+    
+    def __post_init__(self):
+        if not self.keywords:
+            pass
+        else:
+            self.keywords = "&&".join(self.keywords_list)
 
 
 class ManageBooks:
     session_maker = sessionmaker()
-
+    
     def __init__(self):
         self.create_session()
         self.current_session = None
-
+    
     def create_session(self):
         self.session_maker.configure(bind=engine)
-
+    
     def add_book(self, **kwargs):
         """
         :param kwargs: (title, ISBN)
         :return:
         """
-
+        
         # create book instance
         book = Books(**kwargs)
-
+        
         try:
             self.current_session = self.session_maker()
             self.current_session.add(book)
             self.current_session.commit()
         finally:
             self.close_session()
-
+    
     def close_session(self):
-        self.current_session.close()
+        if self.current_session:
+            self.current_session.close()
+    
+    def fetch_book_byTitle(self, title):
+        """
+        Search for a specific book by title
+        """
+        word_filter_regex = re.compile("\w+", re.I)
+        
+        def match(*args):
+            
+            def to_tokens(title_str):
+                """
+                converts title_str in lower case tokens list
+                :param title_str:
+                :return:
+                """
+                return list(map(lambda x: x.lower().strip(), re.split('[\W\s]', title_str)))
+            
+            books_title, search_title = args
+            # print(f"{Fore.LIGHTCYAN_EX}book_title:{books_title}, search_title:{search_title}{Style.RESET_ALL}\n")
+            
+            book_title_tokens = to_tokens(books_title)
+            for word in to_tokens(search_title):
+                if word in book_title_tokens:
+                    pass
+                elif word and word not in book_title_tokens:
+                    # print(f"{Fore.LIGHTBLUE_EX}{word} not in {book_title_tokens}{Style.RESET_ALL}")
+                    return False
+                
+            # print(f"{Fore.GREEN}Match found")
+            return books_title
+    
+        try:
+            self.current_session = self.session_maker()
+            self.current_session: Session
+        
+        
+            # match_validation = lambda Books_title, s_title: all([True if word in word_filter_regex.findall(Books_title)
+            #                                                      else False
+            #                                                      for word in word_filter_regex.findall(s_title)])
+        
+            fetch_res = self.current_session.execute(select(Books.title)).fetchall()
+            matched = list()
+            for res in fetch_res:
+                match_res = match(res[0], title)
+                if match_res:
+                    matched.append(match_res)
+            self.close_session()
+            return matched
+        finally:
+            self.close_session()
 
 
 if __name__ == '__main__':
     books_manager = ManageBooks()
-
-    allowed_extensions = [".pdf", '.epub', "djvu"]
-    folder_name = "~/Downloads/Books"
-    for root, dir_name, files in os.walk(os.path.expanduser(folder_name)):
-        for file in files:
-            ext = os.path.splitext(file)[-1]
-            if ext.lower() in allowed_extensions:
-                try:
-                    books_manager.add_book(title=os.path.basename(file))
-                    print(f"{Fore.GREEN}Added book :{file}{Style.RESET_ALL}")
-                except sqlalchemy.exc.IntegrityError:
-                    print(f"{Fore.LIGHTBLUE_EX}[-] SKIPPED BOOK :{file}{Style.RESET_ALL}")
-                    pass  # skip rows with duplicate values
+    
+    """
+    TEMP: ADDING...
+    """
+    # allowed_extensions = [".pdf", '.epub', "djvu"]
+    # folder_name = "~/Downloads/Books"
+    # for root, dir_name, files in os.walk(os.path.expanduser(folder_name)):
+    #     for file in files:
+    #         ext = os.path.splitext(file)[-1]
+    #         if ext.lower() in allowed_extensions:
+    #             try:
+    #                 books_manager.add_book(title=os.path.basename(file))
+    #                 print(f"{Fore.GREEN}Added book :{file}{Style.RESET_ALL}")
+    #             except sqlalchemy.exc.IntegrityError:
+    #                 print(f"{Fore.LIGHTBLUE_EX}[-] SKIPPED BOOK :{file}{Style.RESET_ALL}")
+    #                 pass  # skip rows with duplicate values
+    
+    """
+    TEMP: Searching...
+    """
+    os.system('clear')
+    try:
+        while True:
+            book_title = input("Search book title:")
+            if book_title == 'over':
+                print(f"{Fore.BLUE}Exiting...{Style.RESET_ALL}")
+            try:
+                results = books_manager.fetch_book_byTitle(book_title)
+                os.system('clear')
+                print(16*"---")
+                for nr, result in enumerate(results, 1):
+                    print(f"{nr}. {Fore.LIGHTCYAN_EX}{result}{Style.RESET_ALL}")
+                print(16*"---")
+            except Exception as e:
+                print(Fore.LIGHTRED_EX)
+                traceback.print_exc()
+                print(Style.RESET_ALL)
+    except KeyboardInterrupt:
+        print(f"{Fore.BLUE}\nExiting...{Style.RESET_ALL}")
+        os.system('clear')
+        print("done!")

@@ -1,6 +1,7 @@
 from global_imports import *
 
-data_path = "Utils/open_path"
+base = os.path.dirname(__file__)
+data_path = os.path.join(base, "open_path")
 if not os.path.exists(data_path):
     os.mkdir(data_path)
 

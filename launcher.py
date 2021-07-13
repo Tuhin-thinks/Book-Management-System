@@ -70,7 +70,7 @@ class HomeWindow(QtWidgets.QMainWindow):
         self.search_obj.ignore = [".jpeg", '.png', '.jpg', '.html', '.txt', '.db', '.py', '.js', '.css', '.pyc']
         self.search_obj.status.connect(partial(Lib.showStatus, self))
         self.search_obj.close.connect(self.Disconnect_searchThread)
-        self.search_obj.books_found.connect(self.setDataToTable)
+        self.search_obj.books_found.connect(self.set_data_to_table)
         self.search_obj.moveToThread(self.search_thread)
         self.search_thread.started.connect(self.search_obj.search)
         self.search_thread.start()
@@ -86,7 +86,7 @@ class HomeWindow(QtWidgets.QMainWindow):
             except TypeError:
                 break
 
-    def setDataToTable(self, books: typing.List[typing.List] = ...):
+    def set_data_to_table(self, books: typing.List[typing.List] = ...):
         model = Lib.FileShowModel(books)
         self.ui.tableView_books.setModel(model)
         self.ui.tableView_books.adjustSize()

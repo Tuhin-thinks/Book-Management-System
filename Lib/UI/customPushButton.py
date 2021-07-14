@@ -13,7 +13,7 @@ def add_custom_button(parent, root):
     parent.pushButton_3.setMinimumSize(QtCore.QSize(301, 71))
     parent.pushButton_3.setMaximumSize(QtCore.QSize(301, 71))
     font = QtGui.QFont()
-    font.setFamily(u"Impact")
+    font.setFamily(u"Ubuntu Condensed")
     font.setPointSize(11)
     parent.pushButton_3.setFont(font)
     parent.pushButton_3.setStyleSheet(u"QPushButton{\n"

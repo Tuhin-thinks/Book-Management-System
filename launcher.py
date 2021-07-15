@@ -34,7 +34,10 @@ class HomeWindow(QtWidgets.QMainWindow):
                 column_data = []
                 for column_index in range(column_count):
                     column_ = selection_model.selectedRows(column_index)
-                    column_data.append(column_[0].data(0))
+                    try:
+                        column_data.append(column_[0].data(0))
+                    except IndexError:  # IndexError may occur when there is no selection
+                        return
                     break  # break to only get the book name (first column)
                 selected.append(column_data[0])
 

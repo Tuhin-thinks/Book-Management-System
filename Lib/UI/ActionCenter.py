@@ -26,7 +26,7 @@ class ActionCenter(QtWidgets.QMainWindow):
     def create_buttons(self, options):
         for op in options:
             button = Lib.customPushButton.add_custom_button(self.ui, self.ui.scrollAreaWidgetContents)
-            button.setText(op.text)
+            button.setText(str(op.text))
             button.setEnabled(bool(op.active_status))
 
     def generate_description_text(self):

@@ -7,6 +7,7 @@ from typing import Optional, List
 
 from colorama import Fore, Style, Back
 from sqlalchemy import create_engine, Table, Column, Integer, String, UniqueConstraint, ForeignKey, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import registry, sessionmaker, Session
 from sqlalchemy_utils import database_exists, create_database
 # from .config import username, password
@@ -150,18 +151,20 @@ if __name__ == '__main__':
     """
     TEMP: ADDING...
     """
-    # allowed_extensions = [".pdf", '.epub', "djvu"]
-    # folder_name = "~/Downloads/Books"
-    # for root, dir_name, files in os.walk(os.path.expanduser(folder_name)):
-    #     for file in files:
-    #         ext = os.path.splitext(file)[-1]
-    #         if ext.lower() in allowed_extensions:
-    #             try:
-    #                 books_manager.add_book(title=os.path.basename(file))
-    #                 print(f"{Fore.GREEN}Added book :{file}{Style.RESET_ALL}")
-    #             except sqlalchemy.exc.IntegrityError:
-    #                 print(f"{Fore.LIGHTBLUE_EX}[-] SKIPPED BOOK :{file}{Style.RESET_ALL}")
-    #                 pass  # skip rows with duplicate values
+    inp = input("Want to add new books?")
+    if inp.lower() == 'yes':
+        allowed_extensions = [".pdf", '.epub', "djvu"]
+        folder_name = input("Enter location to search for the books:")# "~/Downloads/Books"
+        for root, dir_name, files in os.walk(os.path.expanduser(folder_name)):
+            for file in files:
+                ext = os.path.splitext(file)[-1]
+                if ext.lower() in allowed_extensions:
+                    try:
+                        books_manager.add_book(title=os.path.basename(file))
+                        print(f"{Fore.GREEN}Added book :{file}{Style.RESET_ALL}")
+                    except IntegrityError:
+                        print(f"{Fore.LIGHTBLUE_EX}[-] SKIPPED BOOK :{file}{Style.RESET_ALL}")
+                        pass  # skip rows with duplicate values
     
     """
     TEMP: Searching...

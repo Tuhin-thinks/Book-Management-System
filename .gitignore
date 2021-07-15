@@ -133,3 +133,6 @@ dmypy.json
 # custom file/folder exclusions
 **/.idea
 **/.vscode
+
+# path for file to store open path location
+open_path

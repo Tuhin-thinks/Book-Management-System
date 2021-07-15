@@ -132,3 +132,4 @@ dmypy.json
 
 # custom file/folder exclusions
 **/.idea
+**/.vscode

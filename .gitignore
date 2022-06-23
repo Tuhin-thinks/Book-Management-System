@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # vitual environment
 /venv/
 
@@ -136,3 +137,9 @@ dmypy.json
 
 # path for file to store open path location
 open_path
+=======
+config.py
+**/.vscode
+**/.idea
+**/__pycache__
+>>>>>>> 12024bf9cc6087bf4190346282609458160f1247
